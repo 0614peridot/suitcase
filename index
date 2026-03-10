@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suitcase: Visual Travel Planner</title>
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+    <style>
+        /* Archivo 폰트 적용 */
+        @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --pure-white: #FFFFFF;
+            --off-white: #FAF9F6;
+            --warm-dark-grey: #2C2926;
+            --warm-mid-grey: #4A4541;
+            --warm-border: #E5E2DE;
+            --warm-beige-text: #968E85;
+        }
+
+        body {
+            font-family: 'Archivo', sans-serif;
+            background-color: var(--off-white);
+            color: var(--warm-dark-grey);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .soft-shadow {
+            box-shadow: 0 4px 12px rgba(44, 41, 38, 0.04);
+        }
+
+        .canvas-container {
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 10px 40px rgba(44, 41, 38, 0.08);
+            border: 1px solid var(--warm-border);
+        }
+
+        /* 커스텀 스크롤바 */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #D1CEC9; border-radius: 10px; }
+
+        /* 탭 스타일 */
+        .tab-active { 
+            color: var(--warm-dark-grey) !important; 
+            border-bottom: 2px solid var(--warm-dark-grey); 
+            opacity: 1;
+        }
+        .tab-inactive { 
+            color: #A8A29E !important; 
+            opacity: 0.6;
+        }
+
+        .trip-card-active { 
+            background-color: white; 
+            border-color: var(--warm-dark-grey); 
+            box-shadow: 0 4px 12px rgba(44, 41, 38, 0.08); 
+        }
+        .date-btn-active { 
+            background-color: var(--warm-dark-grey); 
+            color: white; 
+            border-color: var(--warm-dark-grey); 
+        }
+        
+        .closet-item:hover .delete-btn { opacity: 1; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        
+        /* 레이아웃 규격 */
+        .btn-standard { height: 48px; }
+        .footer-height { height: 90px; }
+        .header-section-height { height: 56px; }
+
+        /* 입력창 스타일 */
+        .warm-input::placeholder { color: var(--warm-beige-text); opacity: 0.8; }
+        .warm-input { color: var(--warm-beige-text) !important; }
+    </style>
+</head>
+<body class="flex flex-col">
+
+    <!-- 상단바: 상하 20px, 좌우 24px -->
+    <header id="main-header" class="bg-white border-b border-gray-100 py-5 px-6 flex justify-between items-center z-20 shrink-0">
+        <div class="flex items-center">
+            <h1 class="text-xl font-semibold tracking-tight text-[#2C2926]">Suitcase</h1>
+        </div>
+        <nav class="flex gap-8">
+            <button id="nav-plans" onclick="switchTab('plans')" class="pb-[2px] font-semibold transition-colors tab-active">Travel Plan</button>
+            <button id="nav-create" onclick="switchTab('create')" class="pb-[2px] font-semibold transition-colors tab-inactive">Create</button>
+        </nav>
+        <div class="w-24"></div> 
+    </header>
+
+    <main class="flex-1 overflow-hidden relative">
+        
+        <!-- 탭 1: 여행 계획 -->
+        <section id="tab-plans" class="h-full flex overflow-hidden">
+            <!-- 왼쪽: 플랜 리스트 (30%) -->
+            <aside class="w-[30%] border-r border-gray-100 bg-[#F5F4F1]/50 flex flex-col p-4 relative">
+                <h2 class="font-semibold text-[16px] text-[#4A4541] mb-4 px-2">Plans</h2>
+                <div id="trip-list-container" class="flex-1 overflow-y-auto space-y-3 pr-2"></div>
+                <button onclick="openNewTripModal()" class="absolute bottom-6 right-6 w-12 h-12 bg-[#2C2926] text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
+                    <i data-lucide="plus" class="w-6 h-6"></i>
+                </button>
+            </aside>
+
+            <!-- 오른쪽: 상세 정보 (70%) -->
+            <article id="trip-detail-view" class="flex-1 bg-white flex flex-col overflow-hidden">
+                <!-- 상세 헤더: 상하좌측 20px 통일 -->
+                <div id="detail-header" class="p-5 border-b border-gray-50 hidden">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <div class="flex items-center gap-3 mb-1">
+                                <h2 id="detail-dest" class="text-2xl font-bold text-[#2C2926]"></h2>
+                                <span id="detail-weather" class="px-2 py-0.5 bg-[#FAF9F6] text-[#4A4541] text-[10px] font-bold rounded flex items-center gap-1 border border-[#E5E2DE]">
+                                    <i data-lucide="thermometer" class="w-3 h-3"></i> Avg. <span id="temp-val">--</span>°C
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <p id="detail-range" class="text-sm text-[#A8A29E] font-medium"></p>
+                                <button onclick="openEditDatesModal()" class="w-6 h-6 rounded-full bg-[#FAF9F6] border border-[#E5E2DE] flex items-center justify-center text-[#968E85] hover:bg-[#2C2926] hover:text-white transition-colors">
+                                    <i data-lucide="edit-3" class="w-3 h-3"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button onclick="openDeleteConfirmModal('plan')" class="text-xs text-[#A8A29E] hover:text-red-500 flex items-center gap-1 transition-colors">
+                            <i data-lucide="trash-2" class="w-3 h-3"></i> Delete Plan
+                        </button>
+                    </div>
+                    <!-- 날짜 선택 박스: 가로 스크롤 가능 -->
+                    <div id="date-nav" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide"></div>
+                </div>
+
+                <div id="detail-content" class="flex-1 relative flex flex-col items-center justify-start p-8 bg-[#FAF9F6] hidden overflow-y-auto">
+                    <div id="outfit-preview-container" class="relative group max-w-full w-full max-h-[70vh] aspect-square bg-white rounded-lg soft-shadow border border-[#E5E2DE] flex items-center justify-center p-8 mb-10">
+                        <img id="outfit-preview-img" src="" class="max-h-full max-w-full object-contain hidden">
+                        <div id="outfit-empty-state" class="flex flex-col items-center text-[#D1CEC9]">
+                            <i data-lucide="image" class="w-16 h-16 mb-2 opacity-20"></i>
+                            <p class="text-sm font-medium mb-4">No outfit assigned.</p>
+                            <div class="flex gap-2">
+                                <button onclick="switchTab('create')" class="text-xs text-[#2C2926] bg-[#FAF9F6] border border-[#E5E2DE] px-5 py-2 rounded-full hover:bg-white transition-colors">Start Creating</button>
+                                <input type="file" id="outfit-direct-upload" accept="image/*" class="hidden" onchange="handleOutfitDirectUpload(event)">
+                                <button onclick="document.getElementById('outfit-direct-upload').click()" class="text-xs text-white bg-[#2C2926] px-5 py-2 rounded-full hover:opacity-90 transition-colors flex items-center gap-2">
+                                    <i data-lucide="upload" class="w-3 h-3"></i> Upload Look
+                                </button>
+                            </div>
+                        </div>
+                        <button id="delete-outfit-btn" onclick="openDeleteConfirmModal('outfit')" title="Delete" class="absolute bottom-6 right-6 bg-white/95 p-4 rounded-full shadow-xl text-red-500 opacity-0 group-hover:opacity-100 hidden transition-all border border-gray-100">
+                            <i data-lucide="trash-2" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="detail-empty" class="flex-1 flex flex-col items-center justify-center text-[#D1CEC9]">
+                    <i data-lucide="map-pin" class="w-16 h-16 mb-4 opacity-10"></i>
+                    <p class="text-sm font-medium">Select a trip to begin.</p>
+                </div>
+            </article>
+        </section>
+
+        <!-- 탭 2: 제작 스튜디오 -->
+        <section id="tab-create" class="hidden h-full flex overflow-hidden">
+            <!-- 왼쪽: 옷장 -->
+            <aside class="w-[30%] border-r border-gray-100 bg-white flex flex-col shrink-0">
+                <div class="header-section-height pl-6 pr-4 border-b flex justify-between items-center bg-[#FAF9F6]">
+                    <h2 class="font-semibold text-[16px] text-[#4A4541]">My Closet</h2>
+                    <span class="text-[9px] font-bold text-[#4A4541] bg-white border border-[#E5E2DE] px-2 py-1 rounded uppercase">PNG Only</span>
+                </div>
+                <div id="closet-grid" class="flex-1 overflow-y-auto pt-4 pr-4 pb-4 pl-6 grid grid-cols-2 gap-2 content-start bg-white"></div>
+                
+                <div class="footer-height p-5 bg-[#FAF9F6] border-t border-gray-100 flex items-center">
+                    <input type="file" id="file-upload" accept="image/png" class="hidden" onchange="handleFileUpload(event)">
+                    <button onclick="document.getElementById('file-upload').click()" class="w-full btn-standard bg-white border border-[#E5E2DE] rounded-lg flex items-center justify-center gap-2 hover:bg-[#FAF9F6] transition-colors text-sm font-medium shadow-sm">
+                        <i data-lucide="upload" class="w-4 h-4 text-[#4A4541]"></i> Upload PNG
+                    </button>
+                </div>
+            </aside>
+
+            <!-- 오른쪽: 캔버스 스튜디오 -->
+            <div class="w-[70%] bg-[#F5F4F1] flex flex-col relative overflow-hidden">
+                <div id="studio-info-bar" class="w-full header-section-height px-6 flex items-center justify-center gap-3 bg-white border-b border-gray-100 shrink-0">
+                    <div class="px-4 py-1.5 bg-white border border-[#E5E2DE] rounded-full text-[10px] text-[#4A4541] font-medium flex items-center gap-2 shadow-sm">
+                        <i data-lucide="clipboard" class="w-3 h-3 text-[#A8A29E]"></i> Ctrl+V directly from clipboard
+                    </div>
+                    <div class="px-4 py-1.5 bg-white border border-[#E5E2DE] rounded-full text-[10px] text-[#4A4541] font-medium flex items-center gap-2 shadow-sm">
+                        <i data-lucide="keyboard" class="w-3 h-3 text-[#A8A29E]"></i> Use delete key to remove objects
+                    </div>
+                </div>
+
+                <!-- 작업 영역: 16px 마진 및 1:1 비율 유지 -->
+                <div class="flex-1 flex items-center justify-center p-4 min-h-0 overflow-hidden">
+                    <div id="canvas-wrapper" class="canvas-container">
+                        <canvas id="outfit-canvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- 푸터: 버튼 간격 12px 및 중앙 정렬 -->
+                <div id="studio-footer" class="footer-height py-5 bg-white border-t border-gray-100 flex justify-center items-center shrink-0">
+                    <div class="flex gap-3">
+                        <button onclick="downloadCanvas(event)" class="px-6 btn-standard bg-white border border-[#E5E2DE] rounded-lg flex items-center gap-2 hover:bg-[#FAF9F6] text-sm font-medium text-[#2C2926]">
+                            <i data-lucide="download" class="w-4 h-4"></i> Download
+                        </button>
+                        <button onclick="deleteSelectedObject()" class="px-6 btn-standard bg-white border border-red-100 text-red-400 rounded-lg flex items-center gap-2 hover:bg-red-50 transition-all text-sm font-medium">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete Selected
+                        </button>
+                        <button onclick="openCalendarModal()" class="px-8 btn-standard bg-[#2C2926] text-white rounded-lg flex items-center gap-2 hover:opacity-90 transition-all text-sm font-medium shadow-md">
+                            <i data-lucide="calendar" class="w-4 h-4 text-white"></i> Put in Calendar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 모달 창들 -->
+    <div id="modal-new-trip" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-[#2C2926]/40 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-xl p-8 shadow-2xl">
+            <h2 class="text-xl font-bold mb-6 text-[#2C2926]">New Travel Plan</h2>
+            <div class="space-y-5">
+                <div class="relative">
+                    <label class="block text-[10px] font-bold text-[#A8A29E] uppercase mb-1.5">Destination</label>
+                    <input type="text" id="trip-dest" placeholder="Where are you going?" oninput="handleCitySearch(this.value)" class="warm-input w-full px-4 py-3 bg-[#FAF9F6] border border-[#E5E2DE] rounded focus:ring-1 focus:ring-[#2C2926] outline-none text-sm">
+                    <div id="city-results" class="absolute w-full mt-2 bg-white border border-[#E5E2DE] rounded shadow-xl z-50 max-h-48 overflow-y-auto hidden"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-[10px] font-bold text-[#A8A29E] uppercase mb-1.5">Start Date</label><input type="date" id="trip-start" class="warm-input w-full px-3 py-3 bg-[#FAF9F6] border border-[#E5E2DE] rounded outline-none text-sm"></div>
+                    <div><label class="block text-[10px] font-bold text-[#A8A29E] uppercase mb-1.5">End Date</label><input type="date" id="trip-end" class="warm-input w-full px-3 py-3 bg-[#FAF9F6] border border-[#E5E2DE] rounded outline-none text-sm"></div>
+                </div>
+            </div>
+            <div class="mt-8 flex gap-3">
+                <button onclick="closeModals()" class="flex-1 py-3 border border-[#E5E2DE] rounded font-semibold text-[#A8A29E] text-sm">Cancel</button>
+                <button onclick="createNewTrip()" class="flex-1 py-3 bg-[#2C2926] text-white rounded font-semibold text-sm">Create Trip</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-edit-trip" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-[#2C2926]/40 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-xl p-8 shadow-2xl">
+            <h2 class="text-xl font-bold mb-6 text-[#2C2926]">Edit Plan Dates</h2>
+            <div class="space-y-5">
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-[10px] font-bold text-[#A8A29E] uppercase mb-1.5">New Start Date</label><input type="date" id="edit-trip-start" class="warm-input w-full px-3 py-3 bg-[#FAF9F6] border border-[#E5E2DE] rounded outline-none text-sm"></div>
+                    <div><label class="block text-[10px] font-bold text-[#A8A29E] uppercase mb-1.5">New End Date</label><input type="date" id="edit-trip-end" class="warm-input w-full px-3 py-3 bg-[#FAF9F6] border border-[#E5E2DE] rounded outline-none text-sm"></div>
+                </div>
+            </div>
+            <p class="mt-4 text-[10px] text-amber-600 font-medium">* Outfits outside the new range will be removed.</p>
+            <div class="mt-8 flex gap-3">
+                <button onclick="closeModals()" class="flex-1 py-3 border border-[#E5E2DE] rounded font-semibold text-[#A8A29E] text-sm">Cancel</button>
+                <button onclick="updateTripDates()" class="flex-1 py-3 bg-[#2C2926] text-white rounded font-semibold text-sm">Update Plan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-calendar" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-[#2C2926]/40 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-xl p-8 shadow-2xl">
+            <h2 class="text-xl font-bold mb-6 text-center text-[#2C2926]">Select Date</h2>
+            <div id="calendar-trip-selector" class="space-y-4 max-h-96 overflow-y-auto scrollbar-hide"></div>
+            <button onclick="closeModals()" class="w-full mt-8 py-4 bg-[#FAF9F6] border border-[#E5E2DE] rounded font-semibold text-[#4A4541] text-sm">Close</button>
+        </div>
+    </div>
+
+    <div id="modal-delete-confirm" class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-[#2C2926]/60 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-xs rounded-xl p-8 shadow-2xl border border-[#E5E2DE] text-center">
+            <div class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-lg font-bold text-[#2C2926] mb-2">Are you sure?</h3>
+            <p id="delete-confirm-text" class="text-xs text-[#A8A29E] mb-8 leading-relaxed">This action cannot be undone.</p>
+            <div class="flex gap-2">
+                <button onclick="closeModals()" class="flex-1 py-3 border border-[#E5E2DE] rounded font-semibold text-[#A8A29E] text-xs">Cancel</button>
+                <button id="confirm-delete-btn" class="flex-1 py-3 bg-red-500 text-white rounded font-semibold text-xs shadow-sm hover:bg-red-600 transition-colors">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 px-8 py-3 bg-[#2C2926] text-white text-xs font-medium rounded-full opacity-0 pointer-events-none transition-all duration-300 z-[100] shadow-xl">Action Successful</div>
+
+    <script>
+        // --- 날씨 데이터베이스 ---
+        const MONTHLY_WEATHER = { "Seoul": [ -2, 1, 7, 13, 19, 23, 26, 27, 22, 15, 8, 0 ], "Tokyo": [ 6, 7, 10, 15, 20, 23, 27, 28, 24, 18, 13, 8 ], "Paris": [ 5, 6, 9, 12, 16, 19, 21, 21, 18, 13, 9, 6 ], "London": [ 5, 5, 8, 10, 13, 16, 19, 18, 16, 12, 8, 6 ], "New York": [ 0, 2, 6, 12, 18, 23, 26, 25, 21, 15, 9, 3 ], "Osaka": [ 6, 6, 10, 15, 20, 24, 28, 29, 25, 19, 13, 8 ], "Fukuoka": [ 7, 8, 11, 15, 20, 23, 27, 28, 25, 19, 14, 9 ], "Jeju": [ 6, 7, 10, 14, 18, 22, 26, 27, 23, 18, 13, 8 ], "Busan": [ 4, 6, 10, 15, 19, 22, 25, 27, 23, 18, 12, 6 ], "Singapore": [ 27, 27, 28, 28, 28, 28, 28, 28, 28, 28, 27, 27 ], "Bangkok": [ 27, 28, 30, 31, 30, 29, 29, 29, 28, 28, 27, 26 ], "Taipei": [ 16, 17, 19, 23, 26, 28, 30, 29, 28, 25, 21, 18 ], "Hong Kong": [ 16, 17, 19, 23, 26, 28, 29, 29, 28, 25, 21, 18 ] };
+        const CITY_NAMES = Object.keys(MONTHLY_WEATHER).concat(["Kyoto", "Milan", "San Francisco", "Sydney", "Toronto", "Vancouver", "Istanbul", "Lisbon", "Amsterdam", "Berlin", "Munich", "Vienna", "Prague", "Budapest", "Stockholm", "Copenhagen", "Bali", "Da Nang", "Hanoi", "Ho Chi Minh City", "Kuala Lumpur", "Jakarta", "Manila", "Auckland", "Hawaii", "Las Vegas", "Miami", "Mexico City", "Cancun", "Cape Town", "Marrakech", "Athens", "Geneva", "Frankfurt", "Zurich", "Venice", "Florence", "Naples", "Dubrovnik", "Santorini", "Madrid", "Seville", "Porto", "Bordeaux", "Nice"]);
+
+        let closet = JSON.parse(localStorage.getItem('suitcase_closet') || '[]');
+        let trips = JSON.parse(localStorage.getItem('suitcase_trips') || '[]');
+        let selectedTripId = null, selectedDate = null, currentTab = 'plans', canvas, fuse;
+
+        window.onload = () => {
+            initCanvas(); initFuse(); renderCloset(); renderTripList(); lucide.createIcons();
+            window.addEventListener('paste', e => {
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                for (let index in items) {
+                    const item = items[index];
+                    if (item.kind === 'file') {
+                        const blob = item.getAsFile();
+                        const reader = new FileReader();
+                        reader.onload = event => addToCloset(event.target.result);
+                        reader.readAsDataURL(blob);
+                    }
+                }
+            });
+            window.addEventListener('keydown', e => {
+                if ((e.key === 'Delete' || e.key === 'Backspace') && currentTab === 'create') deleteSelectedObject();
+            });
+            window.addEventListener('resize', calculateAndResizeCanvas);
+            if (trips.length > 0) selectTrip(trips[0].id);
+        };
+
+        function calculateAndResizeCanvas() {
+            if (!canvas) return;
+            const headerH = document.getElementById('main-header').offsetHeight;
+            const studioInfoH = 56, studioFooterH = 90, fixedMargin = 32;
+            const availableHeight = window.innerHeight - headerH - studioInfoH - studioFooterH - fixedMargin;
+            const availableWidth = (window.innerWidth * 0.7) - fixedMargin;
+            const size = Math.max(200, Math.min(availableHeight, availableWidth));
+            canvas.setDimensions({ width: size, height: size });
+            canvas.renderAll();
+        }
+
+        function initCanvas() {
+            canvas = new fabric.Canvas('outfit-canvas', { backgroundColor: 'white', preserveObjectStacking: true });
+            calculateAndResizeCanvas();
+            const deleteIcon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'%3E%3C/line%3E%3Cline x1='6' y1='6' x2='18' y2='18'%3E%3C/line%3E%3C/svg%3E";
+            const img = document.createElement('img'); img.src = deleteIcon;
+            fabric.Object.prototype.controls.deleteControl = new fabric.Control({
+                x: 0.5, y: -0.5, offsetY: -16, offsetX: 16, cursorStyle: 'pointer',
+                mouseUpHandler: (eventData, transform) => { canvas.remove(transform.target); canvas.discardActiveObject().requestRenderAll(); return true; }, 
+                render: (ctx, left, top, styleOverride, fabricObject) => {
+                    const size = 24; ctx.save(); ctx.translate(left, top);
+                    ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
+                    ctx.beginPath(); ctx.arc(0, 0, size/2, 0, 2 * Math.PI);
+                    ctx.fillStyle = '#2C2926'; ctx.fill();
+                    ctx.drawImage(img, -size/3, -size/3, (size/3)*2, (size/3)*2); ctx.restore();
+                }, cornerSize: 24
+            });
+            canvas.on('mouse:down', (e) => { if(e.target) canvas.bringToFront(e.target); });
+        }
+
+        function initFuse() { fuse = new Fuse(CITY_NAMES, { threshold: 0.3 }); }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('tab-plans').classList.toggle('hidden', tab !== 'plans');
+            document.getElementById('tab-create').classList.toggle('hidden', tab !== 'create');
+            document.getElementById('nav-plans').className = `pb-[2px] font-semibold transition-colors ${tab === 'plans' ? 'tab-active' : 'tab-inactive'}`;
+            document.getElementById('nav-create').className = `pb-[2px] font-semibold transition-colors ${tab === 'create' ? 'tab-active' : 'tab-inactive'}`;
+            if (tab === 'create') setTimeout(() => { calculateAndResizeCanvas(); canvas.calcOffset(); }, 50);
+            if (tab === 'plans') renderTripList();
+        }
+
+        function deleteSelectedObject() {
+            const activeObjects = canvas.getActiveObjects();
+            if (activeObjects.length > 0) {
+                activeObjects.forEach(obj => canvas.remove(obj));
+                canvas.discardActiveObject().renderAll();
+                showToast("Object Removed");
+            }
+        }
+
+        async function addToCloset(dataUrl) {
+            const img = new Image();
+            img.onload = () => {
+                const temp = document.createElement('canvas'), maxWidth = 400;
+                let w = img.width, h = img.height;
+                if (w > maxWidth) { h *= maxWidth / w; w = maxWidth; }
+                temp.width = w; temp.height = h;
+                temp.getContext('2d').drawImage(img, 0, 0, w, h);
+                closet.unshift({ id: Date.now(), src: temp.toDataURL('image/png') });
+                saveData(); renderCloset();
+            };
+            img.src = dataUrl;
+        }
+
+        function renderCloset() {
+            const grid = document.getElementById('closet-grid'); grid.innerHTML = '';
+            closet.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'closet-item relative bg-[#FAF9F6] rounded p-1.5 cursor-pointer border border-[#E5E2DE] aspect-square overflow-hidden flex items-center justify-center transition-all hover:bg-white';
+                div.innerHTML = `<img src="${item.src}" class="w-full h-full object-contain pointer-events-none">
+                <button onclick="event.stopPropagation(); removeFromCloset(${item.id})" class="delete-btn absolute top-1 right-1 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center shadow opacity-0 transition-opacity"><i data-lucide="x" class="w-3 h-3 text-red-500"></i></button>`;
+                div.onclick = () => {
+                    fabric.Image.fromURL(item.src, (fImg) => {
+                        fImg.scaleToWidth(canvas.width * 0.5); fImg.set({ left: canvas.width/4, top: canvas.width/4, cornerColor: '#2C2926', cornerSize: 8, transparentCorners: false, borderColor: '#2C2926', padding: 2 });
+                        canvas.add(fImg); canvas.setActiveObject(fImg);
+                    });
+                };
+                grid.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function removeFromCloset(id) { closet = closet.filter(i => i.id !== id); saveData(); renderCloset(); }
+
+        function handleFileUpload(e) {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (ev) => { await addToCloset(ev.target.result); document.getElementById('file-upload').value = ""; };
+            reader.readAsDataURL(file);
+        }
+
+        function downloadCanvas(e) {
+            if (e) e.preventDefault();
+            canvas.toCanvasElement().toBlob((blob) => {
+                const url = URL.createObjectURL(blob), link = document.createElement('a');
+                link.href = url; link.download = `Suitcase_Outfit_${Date.now()}.png`;
+                document.body.appendChild(link); link.click();
+                setTimeout(() => { document.body.removeChild(link); URL.revokeObjectURL(url); }, 100);
+            }, 'image/png');
+        }
+
+        function selectTrip(id) { selectedTripId = id; const trip = trips.find(t => t.id === id); if (trip) { selectedDate = getDatesArray(trip.start, trip.end)[0]; renderTripList(); renderTripDetail(); } }
+        
+        function renderTripList() {
+            const container = document.getElementById('trip-list-container'); container.innerHTML = '';
+            if (trips.length === 0) { container.innerHTML = '<p class="text-[11px] text-[#A8A29E] px-2 font-medium">No plans found.</p>'; return; }
+            trips.forEach(trip => {
+                const isActive = selectedTripId === trip.id, div = document.createElement('div');
+                div.className = `p-4 rounded border border-[#E5E2DE] cursor-pointer transition-all ${isActive ? 'trip-card-active' : 'bg-white hover:bg-[#FAF9F6]'}`;
+                div.innerHTML = `<h3 class="font-bold text-sm text-[#2C2926]">${trip.destination}</h3><p class="text-[10px] text-[#A8A29E] mt-1 uppercase">${formatDateSimple(trip.start)} - ${formatDateSimple(trip.end)}</p>`;
+                div.onclick = () => selectTrip(trip.id); container.appendChild(div);
+            });
+        }
+        
+        function renderTripDetail() {
+            const trip = trips.find(t => t.id === selectedTripId);
+            const detailHeader = document.getElementById('detail-header'), detailContent = document.getElementById('detail-content'), detailEmpty = document.getElementById('detail-empty');
+            if (!trip) { detailHeader.classList.add('hidden'); detailContent.classList.add('hidden'); detailEmpty.classList.remove('hidden'); return; }
+            detailEmpty.classList.add('hidden'); detailHeader.classList.remove('hidden'); detailContent.classList.remove('hidden');
+            document.getElementById('detail-dest').innerText = trip.destination; document.getElementById('detail-range').innerText = `${formatDateSimple(trip.start)} — ${formatDateSimple(trip.end)}`;
+            const tempVal = getAvgTemp(trip.destination, selectedDate); document.getElementById('temp-val').innerText = tempVal !== null ? tempVal : '--';
+            const dateNav = document.getElementById('date-nav'); dateNav.innerHTML = '';
+            getDatesArray(trip.start, trip.end).forEach(date => {
+                const isActive = selectedDate === date, btn = document.createElement('button');
+                btn.className = `flex-shrink-0 px-4 py-2 rounded border text-xs font-medium transition-all ${isActive ? 'date-btn-active' : 'border-[#E5E2DE] text-[#A8A29E] hover:bg-[#FAF9F6]'}`;
+                btn.innerHTML = `<span class="opacity-60 block text-[9px] uppercase">${new Date(date).toLocaleDateString('en-US', {weekday:'short'})}</span> ${new Date(date).getDate()}`;
+                btn.onclick = () => { selectedDate = date; renderTripDetail(); }; dateNav.appendChild(btn);
+            });
+            const imgEl = document.getElementById('outfit-preview-img'), emptyEl = document.getElementById('outfit-empty-state'), outfit = trip.outfits[selectedDate], delOutfitBtn = document.getElementById('delete-outfit-btn');
+            if (outfit) { imgEl.src = outfit; imgEl.classList.remove('hidden'); emptyEl.classList.add('hidden'); delOutfitBtn.classList.remove('hidden'); }
+            else { imgEl.classList.add('hidden'); emptyEl.classList.remove('hidden'); delOutfitBtn.classList.add('hidden'); }
+            lucide.createIcons();
+        }
+
+        function openEditDatesModal() {
+            const trip = trips.find(t => t.id === selectedTripId);
+            if (!trip) return;
+            document.getElementById('edit-trip-start').value = trip.start;
+            document.getElementById('edit-trip-end').value = trip.end;
+            document.getElementById('modal-edit-trip').classList.remove('hidden');
+        }
+
+        function updateTripDates() {
+            const trip = trips.find(t => t.id === selectedTripId);
+            const newStart = document.getElementById('edit-trip-start').value;
+            const newEnd = document.getElementById('edit-trip-end').value;
+            if (!trip || !newStart || !newEnd) return;
+            trip.start = newStart; trip.end = newEnd;
+            const validDates = getDatesArray(newStart, newEnd), cleanedOutfits = {};
+            validDates.forEach(date => { if (trip.outfits[date]) cleanedOutfits[date] = trip.outfits[date]; });
+            trip.outfits = cleanedOutfits;
+            saveData(); closeModals(); selectedDate = validDates[0]; renderTripList(); renderTripDetail(); showToast("Plan Updated!");
+        }
+
+        async function handleOutfitDirectUpload(e) {
+            const file = e.target.files[0]; if (!file) return;
+            const trip = trips.find(t => t.id === selectedTripId); if (!trip || !selectedDate) return;
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                const optimized = await optimizeImageForOutfit(ev.target.result);
+                trip.outfits[selectedDate] = optimized; saveData(); renderTripDetail(); showToast("Look Uploaded!"); e.target.value = "";
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function optimizeImageForOutfit(dataUrl) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const temp = document.createElement('canvas'), maxSize = 800;
+                    let w = img.width, h = img.height;
+                    if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } }
+                    else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
+                    temp.width = w; temp.height = h;
+                    temp.getContext('2d').drawImage(img, 0, 0, w, h);
+                    resolve(temp.toDataURL('image/png', 0.8));
+                };
+                img.src = dataUrl;
+            });
+        }
+
+        function getAvgTemp(city, dateStr) { const month = new Date(dateStr).getMonth(); const temps = MONTHLY_WEATHER[city]; return (temps && temps[month] !== undefined) ? temps[month] : null; }
+
+        function openDeleteConfirmModal(type) {
+            const modal = document.getElementById('modal-delete-confirm'), confirmBtn = document.getElementById('confirm-delete-btn'), confirmText = document.getElementById('delete-confirm-text');
+            if (type === 'plan') { confirmText.innerText = "Delete this entire travel plan? All outfits will be removed."; confirmBtn.onclick = confirmDeleteTrip; }
+            else if (type === 'outfit') { confirmText.innerText = "Remove the outfit from this day?"; confirmBtn.onclick = confirmDeleteOutfit; }
+            modal.classList.remove('hidden');
+        }
+
+        function confirmDeleteTrip() { trips = trips.filter(t => t.id !== selectedTripId); saveData(); selectedTripId = trips.length > 0 ? trips[0].id : null; closeModals(); renderTripList(); renderTripDetail(); showToast("Plan Deleted"); }
+        function confirmDeleteOutfit() { const trip = trips.find(t => t.id === selectedTripId); if (trip) { delete trip.outfits[selectedDate]; saveData(); renderTripDetail(); } closeModals(); showToast("Outfit Removed"); }
+        function createNewTrip() { const dest = document.getElementById('trip-dest').value, start = document.getElementById('trip-start').value, end = document.getElementById('trip-end').value; if (!dest || !start || !end) return; const newTrip = { id: Date.now(), destination: dest, start, end, outfits: {} }; trips.unshift(newTrip); saveData(); closeModals(); selectTrip(newTrip.id); }
+        function openCalendarModal() {
+            if (trips.length === 0) { showToast("Create a trip first!"); return; }
+            const container = document.getElementById('calendar-trip-selector'); container.innerHTML = '';
+            trips.forEach(trip => {
+                const div = document.createElement('div'); div.className = 'bg-[#FAF9F6] p-4 rounded border border-[#E5E2DE] mb-4 shadow-sm';
+                div.innerHTML = `<h4 class="text-[10px] font-bold text-[#A8A29E] mb-3 uppercase tracking-wider">${trip.destination}</h4>`;
+                const grid = document.createElement('div'); grid.className = 'grid grid-cols-3 gap-2';
+                getDatesArray(trip.start, trip.end).forEach(date => {
+                    const b = document.createElement('button'); b.className = 'py-2 px-1 bg-white border border-[#E5E2DE] rounded text-[10px] font-semibold hover:bg-[#2C2926] hover:text-white transition-all shadow-sm';
+                    b.innerText = formatDateSimple(date);
+                    b.onclick = () => { const dataUrl = canvas.toDataURL({ format: 'png', multiplier: 1, backgroundColor: 'white' }); trip.outfits[date] = dataUrl; saveData(); closeModals(); showToast("Outfit Saved!"); if(selectedTripId === trip.id) renderTripDetail(); };
+                    grid.appendChild(b);
+                });
+                div.appendChild(grid); container.appendChild(div);
+            });
+            document.getElementById('modal-calendar').classList.remove('hidden');
+        }
+
+        function handleCitySearch(val) {
+            const res = document.getElementById('city-results'); if (!val) { res.classList.add('hidden'); return; }
+            const matches = fuse.search(val).slice(0, 5);
+            res.innerHTML = matches.map(m => `<div onclick="selectCity('${m.item}')" class="px-4 py-3 hover:bg-[#FAF9F6] cursor-pointer text-sm font-medium border-b border-[#E5E2DE] last:border-0 transition-colors">${m.item}</div>`).join('');
+            res.classList.remove('hidden');
+        }
+        function selectCity(name) { document.getElementById('trip-dest').value = name; document.getElementById('city-results').classList.add('hidden'); }
+        function openNewTripModal() { document.getElementById('modal-new-trip').classList.remove('hidden'); }
+        function closeModals() { document.querySelectorAll('#modal-new-trip, #modal-edit-trip, #modal-calendar, #modal-delete-confirm').forEach(m => m.classList.add('hidden')); }
+        function saveData() { localStorage.setItem('suitcase_closet', JSON.stringify(closet)); localStorage.setItem('suitcase_trips', JSON.stringify(trips)); }
+        function getDatesArray(s, e) { const arr = []; let dt = new Date(s); const stop = new Date(e); while (dt <= stop) { arr.push(new Date(dt).toISOString().split('T')[0]); dt.setDate(dt.getDate() + 1); } return arr; }
+        function formatDateSimple(dStr) { return new Date(dStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); }
+        function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.opacity = '1'; t.style.bottom = '40px'; setTimeout(() => { t.style.opacity = '0'; t.style.bottom = '30px'; }, 2500); }
+    </script>
+</body>
+</html>
