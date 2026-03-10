@@ -1,0 +1,600 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.4">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+    span.s1 {font: 12.0px 'Apple SD Gothic Neo'}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Suitcase: Visual Travel Planner&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Libraries --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://unpkg.com/lucide@latest"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Archivo <span class="s1">폰트</span> <span class="s1">적용</span> */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&amp;display=swap');</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>:root {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--pure-white: #FFFFFF;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--off-white: #FAF9F6;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--warm-dark-grey: #2C2926;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--warm-mid-grey: #4A4541;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--warm-border: #E5E2DE;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--warm-beige-text: #968E85;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Archivo', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--off-white);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: var(--warm-dark-grey);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overflow: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 100vh;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.soft-shadow {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 4px 12px rgba(44, 41, 38, 0.04);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.canvas-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overflow: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: white;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 10px 40px rgba(44, 41, 38, 0.08);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid var(--warm-border);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* <span class="s1">커스텀</span> <span class="s1">스크롤바</span> */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>::-webkit-scrollbar { width: 4px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>::-webkit-scrollbar-track { background: transparent; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>::-webkit-scrollbar-thumb { background: #D1CEC9; border-radius: 10px; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.tab-active {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: var(--warm-dark-grey) !important;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 2px solid var(--warm-dark-grey);<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>opacity: 1;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.tab-inactive {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #A8A29E !important;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>opacity: 0.6;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.trip-card-active {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: white;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-color: var(--warm-dark-grey);<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 4px 12px rgba(44, 41, 38, 0.08);<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.date-btn-active {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--warm-dark-grey);<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: white;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-color: var(--warm-dark-grey);<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.closet-item:hover .delete-btn { opacity: 1; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.scrollbar-hide::-webkit-scrollbar { display: none; }</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* <span class="s1">레이아웃</span> <span class="s1">규격</span> */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.btn-standard { height: 48px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.footer-height { height: 90px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.header-section-height { height: 56px; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* <span class="s1">입력창</span> <span class="s1">스타일</span> */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.warm-input::placeholder { color: var(--warm-beige-text); opacity: 0.8; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.warm-input { color: var(--warm-beige-text) !important; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="flex flex-col"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- <span class="s1">상단바</span>: <span class="s1">상하</span> 20px, <span class="s1">좌우</span> 24px --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;header id="main-header" class="bg-white border-b border-gray-100 py-5 px-6 flex justify-between items-center z-20 shrink-0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-xl font-semibold tracking-tight text-[#2C2926]"&gt;Suitcase&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;nav class="flex gap-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="nav-plans" onclick="switchTab('plans')" class="pb-[2px] font-semibold transition-colors tab-active"&gt;Travel Plan&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="nav-create" onclick="switchTab('create')" class="pb-[2px] font-semibold transition-colors tab-inactive"&gt;Create&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/nav&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="w-24"&gt;&lt;/div&gt;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;main class="flex-1 overflow-hidden relative"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- <span class="s1">탭</span> 1: TRAVEL PLANS --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;section id="tab-plans" class="h-full flex overflow-hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- <span class="s1">왼쪽</span>: <span class="s1">리스트</span> <span class="s1">사이드바</span> (30%) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;aside class="w-[30%] border-r border-gray-100 bg-[#F5F4F1]/50 flex flex-col p-4 relative"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 class="font-semibold text-[16px] text-[#4A4541] mb-4 px-2"&gt;Plans&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="trip-list-container" class="flex-1 overflow-y-auto space-y-3 pr-2"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="openNewTripModal()" class="absolute bottom-6 right-6 w-12 h-12 bg-[#2C2926] text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;i data-lucide="plus" class="w-6 h-6"&gt;&lt;/i&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/aside&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- <span class="s1">오른쪽</span>: <span class="s1">상세</span> <span class="s1">정보</span> <span class="s1">섹션</span> (70%) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;article id="trip-detail-view" class="flex-1 bg-white flex flex-col overflow-hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- <span class="s1">상세</span> <span class="s1">헤더</span>: <span class="s1">상하좌측</span> 20px (p-5) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="detail-header" class="p-5 border-b border-gray-50 hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex justify-between items-start mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="flex items-center gap-3 mb-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;h2 id="detail-dest" class="text-2xl font-bold text-[#2C2926]"&gt;&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span id="detail-weather" class="px-2 py-0.5 bg-[#FAF9F6] text-[#4A4541] text-[10px] font-bold rounded flex items-center gap-1 border border-[#E5E2DE]"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;i data-lucide="thermometer" class="w-3 h-3"&gt;&lt;/i&gt; Avg. &lt;span id="temp-val"&gt;--&lt;/span&gt;°C</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="flex items-center gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;p id="detail-range" class="text-sm text-[#A8A29E] font-medium"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;button onclick="openEditDatesModal()" class="w-6 h-6 rounded-full bg-[#FAF9F6] border border-[#E5E2DE] flex items-center justify-center text-[#968E85] hover:bg-[#2C2926] hover:text-white transition-colors" title="Edit Dates"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;i data-lucide="edit-3" class="w-3 h-3"&gt;&lt;/i&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button onclick="openDeleteConfirmModal('plan')" class="text-xs text-[#A8A29E] hover:text-red-500 flex items-center gap-1 transition-colors"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;i data-lucide="trash-2" class="w-3 h-3"&gt;&lt;/i&gt; Delete Plan</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;!-- <span class="s1">날짜</span> <span class="s1">스크롤</span> <span class="s1">영역</span> --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="date-nav" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="detail-content" class="flex-1 relative flex flex-col items-center justify-start p-8 bg-[#FAF9F6] hidden overflow-y-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="outfit-preview-container" class="relative group max-w-full w-full max-h-[70vh] aspect-square bg-white rounded-lg soft-shadow border border-[#E5E2DE] flex items-center justify-center p-8 mb-10"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;img id="outfit-preview-img" src="" class="max-h-full max-w-full object-contain hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="outfit-empty-state" class="flex flex-col items-center text-[#D1CEC9]"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;i data-lucide="image" class="w-16 h-16 mb-2 opacity-20"&gt;&lt;/i&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p class="text-sm font-medium mb-4"&gt;No outfit assigned.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="flex gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;button onclick="switchTab('create')" class="text-xs text-[#2C2926] bg-[#FAF9F6] border border-[#E5E2DE] px-5 py-2 rounded-full hover:bg-white transition-colors"&gt;Start Creating&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;input type="file" id="outfit-direct-upload" accept="image/*" class="hidden" onchange="handleOutfitDirectUpload(event)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;button onclick="document.getElementById('outfit-direct-upload').click()" class="text-xs text-white bg-[#2C2926] px-5 py-2 rounded-full hover:opacity-90 transition-colors flex items-center gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;i data-lucide="upload" class="w-3 h-3"&gt;&lt;/i&gt; Upload Look</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="delete-outfit-btn" onclick="openDeleteConfirmModal('outfit')" title="Delete" class="absolute bottom-6 right-6 bg-white/95 p-4 rounded-full shadow-xl text-red-500 opacity-0 group-hover:opacity-100 hidden transition-all border border-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;i data-lucide="trash-2" class="w-6 h-6"&gt;&lt;/i&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="detail-empty" class="flex-1 flex flex-col items-center justify-center text-[#D1CEC9]"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;i data-lucide="map-pin" class="w-16 h-16 mb-4 opacity-10"&gt;&lt;/i&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-sm font-medium"&gt;Select a trip to begin.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/article&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- <span class="s1">탭</span> 2: CREATE --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;section id="tab-create" class="hidden h-full flex overflow-hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- <span class="s1">왼쪽</span>: Closet <span class="s1">사이드바</span> (<span class="s1">좌측</span> 24px, <span class="s1">우측</span> 16px <span class="s1">마진</span>) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;aside class="w-[30%] border-r border-gray-100 bg-white flex flex-col shrink-0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="header-section-height pl-6 pr-4 border-b flex justify-between items-center bg-[#FAF9F6]"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="font-semibold text-[16px] text-[#4A4541]"&gt;My Closet&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="text-[9px] font-bold text-[#4A4541] bg-white border border-[#E5E2DE] px-2 py-1 rounded uppercase"&gt;PNG Only&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="closet-grid" class="flex-1 overflow-y-auto pt-4 pr-4 pb-4 pl-6 grid grid-cols-2 gap-2 content-start bg-white"&gt;&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="footer-height p-5 bg-[#FAF9F6] border-t border-gray-100 flex items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="file" id="file-upload" accept="image/png" class="hidden" onchange="handleFileUpload(event)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button onclick="document.getElementById('file-upload').click()" class="w-full btn-standard bg-white border border-[#E5E2DE] rounded-lg flex items-center justify-center gap-2 hover:bg-[#FAF9F6] transition-colors text-sm font-medium shadow-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;i data-lucide="upload" class="w-4 h-4 text-[#4A4541]"&gt;&lt;/i&gt; Upload PNG</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/aside&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- <span class="s1">오른쪽</span>: <span class="s1">스튜디오</span> --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="w-[70%] bg-[#F5F4F1] flex flex-col relative overflow-hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="studio-info-bar" class="w-full header-section-height px-6 flex items-center justify-center gap-3 bg-white border-b border-gray-100 shrink-0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="px-4 py-1.5 bg-white border border-[#E5E2DE] rounded-full text-[10px] text-[#4A4541] font-medium flex items-center gap-2 shadow-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;i data-lucide="clipboard" class="w-3 h-3 text-[#A8A29E]"&gt;&lt;/i&gt; Ctrl+V directly from clipboard</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="px-4 py-1.5 bg-white border border-[#E5E2DE] rounded-full text-[10px] text-[#4A4541] font-medium flex items-center gap-2 shadow-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;i data-lucide="keyboard" class="w-3 h-3 text-[#A8A29E]"&gt;&lt;/i&gt; Use delete key to remove objects</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- <span class="s1">캔버스</span> <span class="s1">작업</span> <span class="s1">영역</span>: <span class="s1">상하좌우</span> 16px <span class="s1">마진</span> (p-4) <span class="s1">및</span> 1:1 <span class="s1">비율</span> --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex-1 flex items-center justify-center p-4 min-h-0 overflow-hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="canvas-wrapper" class="canvas-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;canvas id="outfit-canvas"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- <span class="s1">푸터</span> <span class="s1">액션</span>: <span class="s1">버튼</span> <span class="s1">간격</span> 12px <span class="s1">및</span> <span class="s1">중앙</span> <span class="s1">정렬</span> --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="studio-footer" class="footer-height py-5 bg-white border-t border-gray-100 flex justify-center items-center shrink-0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button onclick="downloadCanvas(event)" class="px-6 btn-standard bg-white border border-[#E5E2DE] rounded-lg flex items-center gap-2 hover:bg-[#FAF9F6] text-sm font-medium text-[#2C2926]"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;i data-lucide="download" class="w-4 h-4"&gt;&lt;/i&gt; Download</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button onclick="deleteSelectedObject()" class="px-6 btn-standard bg-white border border-red-100 text-red-400 rounded-lg flex items-center gap-2 hover:bg-red-50 transition-all text-sm font-medium"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;i data-lucide="trash-2" class="w-4 h-4"&gt;&lt;/i&gt; Delete Selected</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button onclick="openCalendarModal()" class="px-8 btn-standard bg-[#2C2926] text-white rounded-lg flex items-center gap-2 hover:opacity-90 transition-all text-sm font-medium shadow-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;i data-lucide="calendar" class="w-4 h-4 text-white"&gt;&lt;/i&gt; Put in Calendar</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/main&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- <span class="s1">모달</span> <span class="s1">창</span> <span class="s1">섹션</span> --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- New Trip --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="modal-new-trip" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-[#2C2926]/40 backdrop-blur-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bg-white w-full max-w-md rounded-xl p-8 shadow-2xl"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-xl font-bold mb-6 text-[#2C2926]"&gt;New Travel Plan&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="space-y-5"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="relative"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="block text-[10px] font-bold text-[#A8A29E] uppercase mb-1.5"&gt;Destination&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="text" id="trip-dest" placeholder="Where are you going?" oninput="handleCitySearch(this.value)" class="warm-input w-full px-4 py-3 bg-[#FAF9F6] border border-[#E5E2DE] rounded focus:ring-1 focus:ring-[#2C2926] outline-none text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="city-results" class="absolute w-full mt-2 bg-white border border-[#E5E2DE] rounded shadow-xl z-50 max-h-48 overflow-y-auto hidden"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="grid grid-cols-2 gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;&lt;label class="block text-[10px] font-bold text-[#A8A29E] uppercase mb-1.5"&gt;Start Date&lt;/label&gt;&lt;input type="date" id="trip-start" class="warm-input w-full px-3 py-3 bg-[#FAF9F6] border border-[#E5E2DE] rounded outline-none text-sm"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;&lt;label class="block text-[10px] font-bold text-[#A8A29E] uppercase mb-1.5"&gt;End Date&lt;/label&gt;&lt;input type="date" id="trip-end" class="warm-input w-full px-3 py-3 bg-[#FAF9F6] border border-[#E5E2DE] rounded outline-none text-sm"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mt-8 flex gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="closeModals()" class="flex-1 py-3 border border-[#E5E2DE] rounded font-semibold text-[#A8A29E] text-sm"&gt;Cancel&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="createNewTrip()" class="flex-1 py-3 bg-[#2C2926] text-white rounded font-semibold text-sm"&gt;Create Trip&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Edit Dates --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="modal-edit-trip" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-[#2C2926]/40 backdrop-blur-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bg-white w-full max-w-md rounded-xl p-8 shadow-2xl"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-xl font-bold mb-6 text-[#2C2926]"&gt;Edit Plan Dates&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="space-y-5"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="grid grid-cols-2 gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;&lt;label class="block text-[10px] font-bold text-[#A8A29E] uppercase mb-1.5"&gt;New Start Date&lt;/label&gt;&lt;input type="date" id="edit-trip-start" class="warm-input w-full px-3 py-3 bg-[#FAF9F6] border border-[#E5E2DE] rounded outline-none text-sm"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;&lt;label class="block text-[10px] font-bold text-[#A8A29E] uppercase mb-1.5"&gt;New End Date&lt;/label&gt;&lt;input type="date" id="edit-trip-end" class="warm-input w-full px-3 py-3 bg-[#FAF9F6] border border-[#E5E2DE] rounded outline-none text-sm"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mt-4 text-[10px] text-amber-600 font-medium"&gt;* Outfits outside the new range will be removed.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mt-8 flex gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="closeModals()" class="flex-1 py-3 border border-[#E5E2DE] rounded font-semibold text-[#A8A29E] text-sm"&gt;Cancel&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="updateTripDates()" class="flex-1 py-3 bg-[#2C2926] text-white rounded font-semibold text-sm"&gt;Update Plan&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Calendar Selector --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="modal-calendar" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-[#2C2926]/40 backdrop-blur-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bg-white w-full max-w-md rounded-xl p-8 shadow-2xl border border-[#E5E2DE]"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-xl font-bold mb-6 text-center text-[#2C2926]"&gt;Select Date&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="calendar-trip-selector" class="space-y-4 max-h-96 overflow-y-auto scrollbar-hide"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="closeModals()" class="w-full mt-8 py-4 bg-[#FAF9F6] border border-[#E5E2DE] rounded font-semibold text-[#4A4541] text-sm"&gt;Close&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Delete Confirmation --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="modal-delete-confirm" class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-[#2C2926]/60 backdrop-blur-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bg-white w-full max-w-xs rounded-xl p-8 shadow-2xl border border-[#E5E2DE] text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;i data-lucide="alert-triangle" class="w-6 h-6"&gt;&lt;/i&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h3 class="text-lg font-bold text-[#2C2926] mb-2"&gt;Are you sure?&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p id="delete-confirm-text" class="text-xs text-[#A8A29E] mb-8 leading-relaxed"&gt;This action cannot be undone.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="flex gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="closeModals()" class="flex-1 py-3 border border-[#E5E2DE] rounded font-semibold text-[#A8A29E] text-xs"&gt;Cancel&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button id="confirm-delete-btn" class="flex-1 py-3 bg-red-500 text-white rounded font-semibold text-xs shadow-sm hover:bg-red-600 transition-colors"&gt;Delete&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 px-8 py-3 bg-[#2C2926] text-white text-xs font-medium rounded-full opacity-0 pointer-events-none transition-all duration-300 z-[100] shadow-xl"&gt;Action Successful&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- EXPANDED WEATHER DATABASE ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const MONTHLY_WEATHER = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Seoul": [ -2, 1, 7, 13, 19, 23, 26, 27, 22, 15, 8, 0 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Tokyo": [ 6, 7, 10, 15, 20, 23, 27, 28, 24, 18, 13, 8 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Paris": [ 5, 6, 9, 12, 16, 19, 21, 21, 18, 13, 9, 6 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"London": [ 5, 5, 8, 10, 13, 16, 19, 18, 16, 12, 8, 6 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"New York": [ 0, 2, 6, 12, 18, 23, 26, 25, 21, 15, 9, 3 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Osaka": [ 6, 6, 10, 15, 20, 24, 28, 29, 25, 19, 13, 8 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Fukuoka": [ 7, 8, 11, 15, 20, 23, 27, 28, 25, 19, 14, 9 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Jeju": [ 6, 7, 10, 14, 18, 22, 26, 27, 23, 18, 13, 8 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Busan": [ 4, 6, 10, 15, 19, 22, 25, 27, 23, 18, 12, 6 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Singapore": [ 27, 27, 28, 28, 28, 28, 28, 28, 28, 28, 27, 27 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Bangkok": [ 27, 28, 30, 31, 30, 29, 29, 29, 28, 28, 27, 26 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Taipei": [ 16, 17, 19, 23, 26, 28, 30, 29, 28, 25, 21, 18 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Hong Kong": [ 16, 17, 19, 23, 26, 28, 29, 29, 28, 25, 21, 18 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Kyoto": [ 5, 6, 9, 14, 19, 23, 27, 28, 24, 18, 12, 7 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Milan": [ 3, 5, 10, 14, 18, 22, 25, 24, 20, 14, 8, 4 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"San Francisco": [ 11, 12, 13, 14, 15, 16, 17, 17, 18, 18, 14, 11 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Sydney": [ 23, 23, 22, 19, 16, 14, 13, 14, 17, 19, 21, 22 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Toronto": [ -5, -4, 1, 8, 14, 20, 23, 22, 18, 11, 5, -1 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Vancouver": [ 4, 5, 7, 10, 13, 16, 18, 18, 15, 10, 6, 4 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Istanbul": [ 6, 6, 8, 12, 17, 22, 25, 25, 21, 16, 12, 8 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Lisbon": [ 11, 12, 14, 16, 18, 21, 23, 24, 23, 19, 15, 12 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Amsterdam": [ 3, 4, 6, 9, 13, 16, 18, 18, 15, 11, 7, 4 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Berlin": [ 1, 2, 5, 10, 15, 18, 20, 20, 16, 10, 5, 2 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Bali": [ 28, 28, 28, 28, 28, 27, 27, 27, 27, 28, 28, 28 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Da Nang": [ 20, 22, 24, 27, 29, 30, 30, 30, 28, 26, 24, 21 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Hanoi": [ 16, 17, 20, 24, 28, 29, 30, 29, 28, 26, 22, 18 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Madrid": [ 6, 8, 11, 13, 17, 22, 26, 26, 22, 16, 10, 7 ],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Barcelona": [ 10, 11, 13, 15, 18, 22, 25, 26, 23, 19, 14, 11 ]</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const CITY_NAMES = Object.keys(MONTHLY_WEATHER).concat(["Kyoto", "Milan", "San Francisco", "Sydney", "Toronto", "Vancouver", "Istanbul", "Lisbon", "Amsterdam", "Berlin", "Munich", "Vienna", "Prague", "Budapest", "Stockholm", "Copenhagen", "Bali", "Da Nang", "Hanoi", "Ho Chi Minh City", "Kuala Lumpur", "Jakarta", "Manila", "Auckland", "Hawaii", "Las Vegas", "Miami", "Mexico City", "Cancun", "Cape Town", "Marrakech", "Athens", "Geneva", "Frankfurt", "Zurich", "Venice", "Florence", "Naples", "Dubrovnik", "Santorini", "Madrid", "Seville", "Porto", "Bordeaux", "Nice"]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>let closet = JSON.parse(localStorage.getItem('suitcase_closet') || '[]');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let trips = JSON.parse(localStorage.getItem('suitcase_trips') || '[]');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let selectedTripId = null, selectedDate = null, currentTab = 'plans', canvas, fuse;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>window.onload = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>initCanvas(); initFuse(); renderCloset(); renderTripList(); lucide.createIcons();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('paste', e =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const items = (e.clipboardData || e.originalEvent.clipboardData).items;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let index in items) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const item = items[index];</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (item.kind === 'file') {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const blob = item.getAsFile();</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const reader = new FileReader();</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>reader.onload = event =&gt; addToCloset(event.target.result);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>reader.readAsDataURL(blob);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('keydown', e =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if ((e.key === 'Delete' || e.key === 'Backspace') &amp;&amp; currentTab === 'create') deleteSelectedObject();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('resize', calculateAndResizeCanvas);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (trips.length &gt; 0) selectTrip(trips[0].id);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function calculateAndResizeCanvas() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!canvas) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const headerH = document.getElementById('main-header').offsetHeight;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const studioInfoH = 56, studioFooterH = 90, fixedMargin = 32;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const availableHeight = window.innerHeight - headerH - studioInfoH - studioFooterH - fixedMargin;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const availableWidth = (window.innerWidth * 0.7) - fixedMargin;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const size = Math.max(200, Math.min(availableHeight, availableWidth));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas.setDimensions({ width: size, height: size });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas.renderAll();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function initCanvas() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas = new fabric.Canvas('outfit-canvas', { backgroundColor: 'white', preserveObjectStacking: true });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>calculateAndResizeCanvas();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const deleteIcon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'%3E%3C/line%3E%3Cline x1='6' y1='6' x2='18' y2='18'%3E%3C/line%3E%3C/svg%3E";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const img = document.createElement('img'); img.src = deleteIcon;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>fabric.Object.prototype.controls.deleteControl = new fabric.Control({</p>
+<p class="p1"><span class="Apple-converted-space">                </span>x: 0.5, y: -0.5, offsetY: -16, offsetX: 16, cursorStyle: 'pointer',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>mouseUpHandler: (eventData, transform) =&gt; { canvas.remove(transform.target); canvas.discardActiveObject().requestRenderAll(); return true; },<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>render: (ctx, left, top, styleOverride, fabricObject) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const size = 24; ctx.save(); ctx.translate(left, top);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.beginPath(); ctx.arc(0, 0, size/2, 0, 2 * Math.PI);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.fillStyle = '#2C2926'; ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.drawImage(img, -size/3, -size/3, (size/3)*2, (size/3)*2); ctx.restore();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}, cornerSize: 24</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas.on('mouse:down', (e) =&gt; { if(e.target) canvas.bringToFront(e.target); });</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function initFuse() { fuse = new Fuse(CITY_NAMES, { threshold: 0.3 }); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function switchTab(tab) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>currentTab = tab;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('tab-plans').classList.toggle('hidden', tab !== 'plans');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('tab-create').classList.toggle('hidden', tab !== 'create');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('nav-plans').className = `pb-[2px] font-semibold transition-colors ${tab === 'plans' ? 'tab-active' : 'tab-inactive'}`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('nav-create').className = `pb-[2px] font-semibold transition-colors ${tab === 'create' ? 'tab-active' : 'tab-inactive'}`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (tab === 'create') setTimeout(() =&gt; { calculateAndResizeCanvas(); canvas.calcOffset(); }, 50);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (tab === 'plans') renderTripList();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function deleteSelectedObject() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const activeObjects = canvas.getActiveObjects();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (activeObjects.length &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>activeObjects.forEach(obj =&gt; canvas.remove(obj));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.discardActiveObject().renderAll();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>showToast("Object Removed");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>async function addToCloset(dataUrl) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const img = new Image();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>img.onload = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const temp = document.createElement('canvas'), maxWidth = 400;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let w = img.width, h = img.height;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (w &gt; maxWidth) { h *= maxWidth / w; w = maxWidth; }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>temp.width = w; temp.height = h;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>temp.getContext('2d').drawImage(img, 0, 0, w, h);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>closet.unshift({ id: Date.now(), src: temp.toDataURL('image/png') });</p>
+<p class="p1"><span class="Apple-converted-space">                </span>saveData(); renderCloset();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>img.src = dataUrl;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function renderCloset() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const grid = document.getElementById('closet-grid'); grid.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>closet.forEach(item =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const div = document.createElement('div');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>div.className = 'closet-item relative bg-[#FAF9F6] rounded p-1.5 cursor-pointer border border-[#E5E2DE] aspect-square overflow-hidden flex items-center justify-center transition-all hover:bg-white';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>div.innerHTML = `&lt;img src="${item.src}" class="w-full h-full object-contain pointer-events-none"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="event.stopPropagation(); removeFromCloset(${item.id})" class="delete-btn absolute top-1 right-1 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center shadow opacity-0 transition-opacity"&gt;&lt;i data-lucide="x" class="w-3 h-3 text-red-500"&gt;&lt;/i&gt;&lt;/button&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>div.onclick = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>fabric.Image.fromURL(item.src, (fImg) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>fImg.scaleToWidth(canvas.width * 0.5); fImg.set({ left: canvas.width/4, top: canvas.width/4, cornerColor: '#2C2926', cornerSize: 8, transparentCorners: false, borderColor: '#2C2926', padding: 2 });</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>canvas.add(fImg); canvas.setActiveObject(fImg);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                </span>};</p>
+<p class="p1"><span class="Apple-converted-space">                </span>grid.appendChild(div);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>lucide.createIcons();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function removeFromCloset(id) { closet = closet.filter(i =&gt; i.id !== id); saveData(); renderCloset(); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function handleFileUpload(e) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const file = e.target.files[0]; if (!file) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const reader = new FileReader();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>reader.onload = async (ev) =&gt; { await addToCloset(ev.target.result); document.getElementById('file-upload').value = ""; };</p>
+<p class="p1"><span class="Apple-converted-space">            </span>reader.readAsDataURL(file);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function downloadCanvas(e) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (e) e.preventDefault();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas.toCanvasElement().toBlob((blob) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const url = URL.createObjectURL(blob), link = document.createElement('a');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>link.href = url; link.download = `Suitcase_Outfit_${Date.now()}.png`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.body.appendChild(link); link.click();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setTimeout(() =&gt; { document.body.removeChild(link); URL.revokeObjectURL(url); }, 100);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, 'image/png');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function selectTrip(id) { selectedTripId = id; const trip = trips.find(t =&gt; t.id === id); if (trip) { selectedDate = getDatesArray(trip.start, trip.end)[0]; renderTripList(); renderTripDetail(); } }</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function renderTripList() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const container = document.getElementById('trip-list-container'); container.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (trips.length === 0) { container.innerHTML = '&lt;p class="text-[11px] text-[#A8A29E] px-2 font-medium"&gt;No plans found.&lt;/p&gt;'; return; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>trips.forEach(trip =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const isActive = selectedTripId === trip.id, div = document.createElement('div');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>div.className = `p-4 rounded border border-[#E5E2DE] cursor-pointer transition-all ${isActive ? 'trip-card-active' : 'bg-white hover:bg-[#FAF9F6]'}`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>div.innerHTML = `&lt;h3 class="font-bold text-sm text-[#2C2926]"&gt;${trip.destination}&lt;/h3&gt;&lt;p class="text-[10px] text-[#A8A29E] mt-1 uppercase"&gt;${formatDateSimple(trip.start)} - ${formatDateSimple(trip.end)}&lt;/p&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>div.onclick = () =&gt; selectTrip(trip.id); container.appendChild(div);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function renderTripDetail() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const trip = trips.find(t =&gt; t.id === selectedTripId);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const detailHeader = document.getElementById('detail-header'), detailContent = document.getElementById('detail-content'), detailEmpty = document.getElementById('detail-empty');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!trip) { detailHeader.classList.add('hidden'); detailContent.classList.add('hidden'); detailEmpty.classList.remove('hidden'); return; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>detailEmpty.classList.add('hidden'); detailHeader.classList.remove('hidden'); detailContent.classList.remove('hidden');</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('detail-dest').innerText = trip.destination;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('detail-range').innerText = `${formatDateSimple(trip.start)} — ${formatDateSimple(trip.end)}`;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const tempVal = getAvgTemp(trip.destination, selectedDate);<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('temp-val').innerText = tempVal !== null ? tempVal : '--';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const dateNav = document.getElementById('date-nav'); dateNav.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>getDatesArray(trip.start, trip.end).forEach(date =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const isActive = selectedDate === date, btn = document.createElement('button');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>btn.className = `flex-shrink-0 px-4 py-2 rounded border text-xs font-medium transition-all ${isActive ? 'date-btn-active' : 'border-[#E5E2DE] text-[#A8A29E] hover:bg-[#FAF9F6]'}`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>btn.innerHTML = `&lt;span class="opacity-60 block text-[9px] uppercase"&gt;${new Date(date).toLocaleDateString('en-US', {weekday:'short'})}&lt;/span&gt; ${new Date(date).getDate()}`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>btn.onclick = () =&gt; { selectedDate = date; renderTripDetail(); }; dateNav.appendChild(btn);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const imgEl = document.getElementById('outfit-preview-img'), emptyEl = document.getElementById('outfit-empty-state'), outfit = trip.outfits[selectedDate], delOutfitBtn = document.getElementById('delete-outfit-btn');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (outfit) { imgEl.src = outfit; imgEl.classList.remove('hidden'); emptyEl.classList.add('hidden'); delOutfitBtn.classList.remove('hidden'); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>else { imgEl.classList.add('hidden'); emptyEl.classList.remove('hidden'); delOutfitBtn.classList.add('hidden'); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>lucide.createIcons();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function openEditDatesModal() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const trip = trips.find(t =&gt; t.id === selectedTripId);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!trip) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('edit-trip-start').value = trip.start;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('edit-trip-end').value = trip.end;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('modal-edit-trip').classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateTripDates() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const trip = trips.find(t =&gt; t.id === selectedTripId);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const newStart = document.getElementById('edit-trip-start').value;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const newEnd = document.getElementById('edit-trip-end').value;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!trip || !newStart || !newEnd) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>trip.start = newStart; trip.end = newEnd;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const validDates = getDatesArray(newStart, newEnd), cleanedOutfits = {};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>validDates.forEach(date =&gt; { if (trip.outfits[date]) cleanedOutfits[date] = trip.outfits[date]; });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>trip.outfits = cleanedOutfits;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>saveData(); closeModals(); selectedDate = validDates[0]; renderTripList(); renderTripDetail(); showToast("Plan Updated!");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>async function handleOutfitDirectUpload(e) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const file = e.target.files[0]; if (!file) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const trip = trips.find(t =&gt; t.id === selectedTripId); if (!trip || !selectedDate) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const reader = new FileReader();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>reader.onload = async (ev) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const optimized = await optimizeImageForOutfit(ev.target.result);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>trip.outfits[selectedDate] = optimized; saveData(); renderTripDetail(); showToast("Look Uploaded!"); e.target.value = "";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>reader.readAsDataURL(file);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>async function optimizeImageForOutfit(dataUrl) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return new Promise((resolve) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const img = new Image();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>img.onload = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const temp = document.createElement('canvas'), maxSize = 800;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let w = img.width, h = img.height;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (w &gt; h) { if (w &gt; maxSize) { h *= maxSize / w; w = maxSize; } }</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>else { if (h &gt; maxSize) { w *= maxSize / h; h = maxSize; } }</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>temp.width = w; temp.height = h;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>temp.getContext('2d').drawImage(img, 0, 0, w, h);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>resolve(temp.toDataURL('image/png', 0.8));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>};</p>
+<p class="p1"><span class="Apple-converted-space">                </span>img.src = dataUrl;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function getAvgTemp(city, dateStr) {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const d = new Date(dateStr);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const month = d.getMonth();<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const temps = MONTHLY_WEATHER[city];<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>return (temps &amp;&amp; temps[month] !== undefined) ? temps[month] : null;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function openDeleteConfirmModal(type) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const modal = document.getElementById('modal-delete-confirm'), confirmBtn = document.getElementById('confirm-delete-btn'), confirmText = document.getElementById('delete-confirm-text');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (type === 'plan') { confirmText.innerText = "Delete this entire travel plan? All outfits will be removed."; confirmBtn.onclick = confirmDeleteTrip; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>else if (type === 'outfit') { confirmText.innerText = "Remove the outfit from this day?"; confirmBtn.onclick = confirmDeleteOutfit; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>modal.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function confirmDeleteTrip() { trips = trips.filter(t =&gt; t.id !== selectedTripId); saveData(); selectedTripId = trips.length &gt; 0 ? trips[0].id : null; closeModals(); renderTripList(); renderTripDetail(); showToast("Plan Deleted"); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function confirmDeleteOutfit() { const trip = trips.find(t =&gt; t.id === selectedTripId); if (trip) { delete trip.outfits[selectedDate]; saveData(); renderTripDetail(); } closeModals(); showToast("Outfit Removed"); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createNewTrip() { const dest = document.getElementById('trip-dest').value, start = document.getElementById('trip-start').value, end = document.getElementById('trip-end').value; if (!dest || !start || !end) return; const newTrip = { id: Date.now(), destination: dest, start, end, outfits: {} }; trips.unshift(newTrip); saveData(); closeModals(); selectTrip(newTrip.id); }</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function openCalendarModal() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (trips.length === 0) { showToast("Create a trip first!"); return; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const container = document.getElementById('calendar-trip-selector'); container.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>trips.forEach(trip =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const div = document.createElement('div'); div.className = 'bg-[#FAF9F6] p-4 rounded border border-[#E5E2DE] mb-4 shadow-sm';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>div.innerHTML = `&lt;h4 class="text-[10px] font-bold text-[#A8A29E] mb-3 uppercase tracking-wider"&gt;${trip.destination}&lt;/h4&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const grid = document.createElement('div'); grid.className = 'grid grid-cols-3 gap-2';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>getDatesArray(trip.start, trip.end).forEach(date =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const b = document.createElement('button'); b.className = 'py-2 px-1 bg-white border border-[#E5E2DE] rounded text-[10px] font-semibold hover:bg-[#2C2926] hover:text-white transition-all shadow-sm';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>b.innerText = formatDateSimple(date);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>b.onclick = () =&gt; { const dataUrl = canvas.toDataURL({ format: 'png', multiplier: 1, backgroundColor: 'white' }); trip.outfits[date] = dataUrl; saveData(); closeModals(); showToast("Outfit Saved!"); if(selectedTripId === trip.id) renderTripDetail(); };</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>grid.appendChild(b);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                </span>div.appendChild(grid); container.appendChild(div);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('modal-calendar').classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function handleCitySearch(val) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const res = document.getElementById('city-results'); if (!val) { res.classList.add('hidden'); return; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const matches = fuse.search(val).slice(0, 5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>res.innerHTML = matches.map(m =&gt; `&lt;div onclick="selectCity('${m.item}')" class="px-4 py-3 hover:bg-[#FAF9F6] cursor-pointer text-sm font-medium border-b border-[#E5E2DE] last:border-0 transition-colors"&gt;${m.item}&lt;/div&gt;`).join('');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>res.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function selectCity(name) { document.getElementById('trip-dest').value = name; document.getElementById('city-results').classList.add('hidden'); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function openNewTripModal() { document.getElementById('modal-new-trip').classList.remove('hidden'); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function closeModals() { document.querySelectorAll('#modal-new-trip, #modal-edit-trip, #modal-calendar, #modal-delete-confirm').forEach(m =&gt; m.classList.add('hidden')); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function saveData() { localStorage.setItem('suitcase_closet', JSON.stringify(closet)); localStorage.setItem('suitcase_trips', JSON.stringify(trips)); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function getDatesArray(s, e) { const arr = []; let dt = new Date(s); const stop = new Date(e); while (dt &lt;= stop) { arr.push(new Date(dt).toISOString().split('T')[0]); dt.setDate(dt.getDate() + 1); } return arr; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function formatDateSimple(dStr) { return new Date(dStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.opacity = '1'; t.style.bottom = '40px'; setTimeout(() =&gt; { t.style.opacity = '0'; t.style.bottom = '30px'; }, 2500); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
